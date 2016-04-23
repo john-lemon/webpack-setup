@@ -1,4 +1,4 @@
-import { hello, insertName } from './app/app';
+import { hello, insertName } from './component/component';
 
 
 console.log(hello('Name'));
