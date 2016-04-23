@@ -1,7 +1,7 @@
 import './component.styl'
 
 const hello = (name) => {
-    var result = 'Hello, '+name+'!2222222'
+    var result = 'Hello, '+name+'!'
     return result;
 }
 
