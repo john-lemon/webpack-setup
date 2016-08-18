@@ -1,5 +1,6 @@
 'use strict';
 
+const path = require('path');
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const webpack = require('webpack');
 
@@ -7,18 +8,23 @@ let ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 module.exports = {
     context: __dirname + '/src',
-    entry: './app',
+    entry: {
+        javascript: './app.js'
+      },
     output: {
-        path: __dirname + '/dist',
-        publicPath: '/',
+        path: path.join(__dirname, 'bundle'),
         filename: 'app.js'
     },
 
+    resolve: {
+        extensions: ['', '.js', '.jsx', '.styl', '.css'],
+        modulesDirectories: ['node_modules', '.']
+    },
 
     devtool: NODE_ENV == 'development' ? "cheap-inline-module-source-map" : null,
 
-
     module: {
+
 
         noParse: [
             /\.min\.js/,
@@ -27,51 +33,43 @@ module.exports = {
         loaders: [
             {
                 test: /\.js$/,
-                exclude: /\/node_modules\//,
-                loader: 'babel',
-                query: {
-                  presets: ['es2015'],
-                  plugins: ['transform-runtime']
-                }
-            }, 
-            {
+                exlude: /node_modules/,
+                loaders: [
+                    'babel?' + JSON.stringify({
+                        presets: ['es2015', 'stage-0', 'react']
+                    })
+                ]
+            }, {
                 test: /\.styl$/,
-                exclude: /\/node_modules\//,
+                exlude: /node_modules/,
                 loader: ExtractTextPlugin.extract('style-loader', 'css-loader!stylus-loader')
-            },
-            {
-                test: /\.jpg$/,
-                loader: 'file-loader?name=/images/[name].[ext]'
-            },
-            {
-                test: /\.(png|svg)$/,
-                loader: 'url-loader?name=/images/[name].[ext]&limit=4096'
-            },
-            {
-                test: /\.(ttf|eot|woff|woff2)$/,
-                loader: 'file-loader?name=/fonts/[name].[ext]'
             }
         ]
+
+    },
+
+    watchOptions: {
+        poll: 100
     },
 
     plugins: [
-        new ExtractTextPlugin('style.css')
+        new ExtractTextPlugin('app.css'),
+
+        new webpack.ProvidePlugin({
+            Promise: 'imports?this=>global!exports?global.Promise!es6-promise',
+            fetch: 'imports?this=>global!exports?global.fetch!whatwg-fetch',
+        }),
+
+        new webpack.NoErrorsPlugin(),
+
+        new webpack.DefinePlugin({
+            NODE_ENV: JSON.stringify(process.env.NODE_ENV)
+        }),
     ],
 
     devServer: {
         host: 'localhost',
-        port: 8080
+        port: 3000,
+        historyApiFallback: true
     }
 };
-
-if (NODE_ENV == 'production') {
-    module.exports.plugins.push(
-        new webpack.optimize.UglifyJsPlugin({
-            compress: {
-                warnings: false,
-                drop_console: true,
-                unsafe: true,
-            }
-        })
-    )
-}

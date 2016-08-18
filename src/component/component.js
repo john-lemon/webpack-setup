@@ -1,12 +1,9 @@
-import './component.styl'
+import './Component.styl'
 
-const hello = (name) => {
-    var result = 'Hello, '+name+'!'
-    return result;
+class Component {
+  constructor() {
+
+  }
 }
 
-const insertName = (name, element) => {
-    element.innerHTML = name;
-}
-
-export { hello, insertName }
+export default Component;
